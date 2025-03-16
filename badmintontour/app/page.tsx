@@ -5,7 +5,7 @@ import { Tournament, Match, Team } from '../types/tournament';
 import { TournamentDB } from '../services/db';
 import { createInitialTournament } from '../data/initialData';
 import { calculateGroupStandings, generateQuarterFinals, generateSemiFinals, generateFinals } from '../utils/tournament';
-import { FaTrophy, FaRedo, FaArrowRight, FaCheck } from 'react-icons/fa';
+import { FaTrophy, FaRedo, FaArrowRight, FaCheck, FaMedal } from 'react-icons/fa';
 
 const db = new TournamentDB();
 
@@ -90,6 +90,40 @@ function MatchInput({ match, onUpdate }: { match: Match; onUpdate: (score1: numb
                     </div>
                 )}
             </div>
+        </div>
+    );
+}
+
+// Thêm styles cho tournament status
+function TournamentStatus({ tournament }: { tournament: Tournament }) {
+    const totalMatches = tournament.groups.reduce((acc, group) => acc + group.matches.length, 0) +
+        tournament.quarterFinals.length + tournament.semiFinals.length +
+        (tournament.final ? 1 : 0) + (tournament.thirdPlace ? 1 : 0);
+
+    const completedMatches = tournament.groups.reduce((acc, group) =>
+        acc + group.matches.filter(m => m.completed).length, 0) +
+        tournament.quarterFinals.filter(m => m.completed).length +
+        tournament.semiFinals.filter(m => m.completed).length +
+        (tournament.final?.completed ? 1 : 0) +
+        (tournament.thirdPlace?.completed ? 1 : 0);
+
+    const progress = Math.round((completedMatches / totalMatches) * 100);
+
+    return (
+        <div className="d-flex align-items-center gap-3">
+            <div className="progress flex-grow-1" style={{ height: '10px', minWidth: '200px' }}>
+                <div
+                    className="progress-bar bg-success"
+                    role="progressbar"
+                    style={{ width: `${progress}%` }}
+                    aria-valuenow={progress}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                ></div>
+            </div>
+            <span className="text-muted small">
+                {completedMatches}/{totalMatches} trận đã hoàn thành
+            </span>
         </div>
     );
 }
@@ -314,53 +348,74 @@ export default function TournamentPage() {
 
     return (
         <div className="min-vh-100 bg-light">
-            {/* Header */}
-            <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+            {/* Enhanced Header */}
+            <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
                 <div className="container-fluid max-width-1440">
-                    <span className="navbar-brand fw-bold">
-                        <FaTrophy className="me-2" />
-                        ROLEX CHAMPION
+                    <span className="navbar-brand fw-bold d-flex align-items-center">
+                        <FaTrophy className="me-2" style={{ fontSize: '1.5rem' }} />
+                        <span style={{ fontSize: '1.2rem' }}>ROLEX CHAMPION</span>
                     </span>
-                    <div className="d-flex gap-2">
-                        <button className="btn btn-outline-danger btn-sm" onClick={resetTournament}>
-                            <FaRedo className="me-1" /> Reset
+                    <div className="d-flex gap-3 align-items-center">
+                        <button
+                            className="btn btn-outline-light btn-sm d-flex align-items-center gap-2"
+                            onClick={autoFillRandomScores}
+                        >
+                            <FaRedo className="me-1" />
+                            Điền điểm ngẫu nhiên
+                        </button>
+                        <button
+                            className="btn btn-danger btn-sm d-flex align-items-center gap-2"
+                            onClick={resetTournament}
+                        >
+                            <FaRedo className="me-1" />
+                            Khởi tạo lại
                         </button>
                     </div>
                 </div>
             </nav>
 
-            {/* Main Content */}
+            {/* Main Content with Enhanced Layout */}
             <div className="container-fluid max-width-1440 py-4">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h2 className="mb-0">Giải đấu cầu lông</h2>
-                    <button
-                        className="btn btn-primary"
-                        onClick={autoFillRandomScores}
-                    >
-                        Tự động điền điểm ngẫu nhiên
-                    </button>
+                <div className="card shadow-sm mb-4">
+                    <div className="card-body">
+                        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <div>
+                                <h4 className="mb-1">Giải Cầu Lông ROLEX CHAMPION 2024</h4>
+                                <p className="text-muted mb-0">Theo dõi và cập nhật kết quả trực tiếp</p>
+                            </div>
+                            {tournament && <TournamentStatus tournament={tournament} />}
+                        </div>
+                    </div>
                 </div>
+
                 <div className="row g-4">
-                    {/* Group Stage */}
+                    {/* Group Stage with Enhanced Cards */}
                     <div className="col-12 col-xxl-7">
                         <div className="card shadow-sm">
-                            <div className="card-header bg-white">
-                                <h5 className="mb-0">Vòng Bảng</h5>
+                            <div className="card-header bg-white py-3">
+                                <div className="d-flex align-items-center">
+                                    <FaTrophy className="text-warning me-2" />
+                                    <h5 className="mb-0">Vòng Bảng</h5>
+                                </div>
                             </div>
                             <div className="card-body">
                                 <div className="row g-4">
-                                    {/* Group Stage */}
-                                    {tournament.groups.map(group => (
+                                    {tournament?.groups.map(group => (
                                         <div key={group.id} className="col-12 col-xl-6">
-                                            <div className="card h-100">
-                                                <div className="card-header bg-white">
-                                                    <h6 className="mb-0">{group.name}</h6>
+                                            <div className="card h-100 border-0 shadow-sm">
+                                                <div className="card-header bg-white py-3">
+                                                    <div className="d-flex justify-content-between align-items-center">
+                                                        <h6 className="mb-0">{group.name}</h6>
+                                                        <span className="badge bg-primary">
+                                                            {group.matches.filter(m => m.completed).length}/{group.matches.length} trận
+                                                        </span>
+                                                    </div>
                                                 </div>
                                                 <div className="card-body">
-                                                    {/* Standings Table */}
+                                                    {/* Enhanced Standings Table */}
                                                     <div className="table-responsive mb-4">
-                                                        <table className="table table-sm table-hover">
-                                                            <thead>
+                                                        <table className="table table-hover align-middle mb-0">
+                                                            <thead className="bg-light">
                                                                 <tr>
                                                                     <th style={{ minWidth: '180px' }}>Đội</th>
                                                                     <th className="text-center" style={{ width: '50px' }}>Đ</th>
@@ -375,11 +430,11 @@ export default function TournamentPage() {
                                                                     const isQualified = allMatchesCompleted && index < 2;
 
                                                                     return (
-                                                                        <tr key={standing.team.id}>
+                                                                        <tr key={standing.team.id} className={isQualified ? 'bg-success bg-opacity-10' : ''}>
                                                                             <td>
                                                                                 <div className="d-flex align-items-center gap-2">
                                                                                     {isQualified && (
-                                                                                        <div className="bg-success rounded-circle" style={{ width: '8px', height: '8px' }}></div>
+                                                                                        <FaCheck className="text-success" style={{ fontSize: '0.8rem' }} />
                                                                                     )}
                                                                                     <TeamDisplay team={standing.team} compact={true} />
                                                                                 </div>
@@ -394,7 +449,14 @@ export default function TournamentPage() {
                                                             </tbody>
                                                         </table>
                                                     </div>
-                                                    <h6 className="mb-3">Trận đấu</h6>
+
+                                                    {/* Enhanced Matches Section */}
+                                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                                        <h6 className="mb-0">Trận đấu</h6>
+                                                        <span className="badge bg-secondary">
+                                                            {group.matches.filter(m => m.completed).length} trận đã hoàn thành
+                                                        </span>
+                                                    </div>
                                                     <div className="row g-3">
                                                         {group.matches.map(match => (
                                                             <div key={match.id} className="col-12">
@@ -414,23 +476,38 @@ export default function TournamentPage() {
                         </div>
                     </div>
 
-                    {/* Knockout Stages */}
+                    {/* Enhanced Knockout Stages */}
                     <div className="col-12 col-xxl-5">
                         <div className="row g-4">
                             {/* Quarter Finals */}
                             <div className="col-12">
                                 <div className="card shadow-sm">
-                                    <div className="card-header bg-white">
-                                        <h5 className="mb-0">Tứ kết</h5>
+                                    <div className="card-header bg-white py-3">
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <div className="d-flex align-items-center">
+                                                <FaArrowRight className="text-primary me-2" />
+                                                <h5 className="mb-0">Tứ kết</h5>
+                                            </div>
+                                            {tournament?.quarterFinals.length > 0 && (
+                                                <span className="badge bg-primary">
+                                                    {tournament.quarterFinals.filter(m => m.completed).length}/4 trận
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="card-body">
-                                        {tournament.quarterFinals.length === 0 ? (
-                                            <div className="text-center text-muted py-4">
-                                                Tứ kết sẽ được tạo tự động sau khi hoàn thành vòng bảng
+                                        {tournament?.quarterFinals.length === 0 ? (
+                                            <div className="text-center py-5">
+                                                <div className="text-muted mb-2">
+                                                    <FaArrowRight style={{ fontSize: '2rem' }} />
+                                                </div>
+                                                <p className="text-muted mb-0">
+                                                    Tứ kết sẽ được tạo tự động sau khi hoàn thành vòng bảng
+                                                </p>
                                             </div>
                                         ) : (
                                             <div className="row g-3">
-                                                {tournament.quarterFinals.map(match => (
+                                                {tournament?.quarterFinals.map(match => (
                                                     <div key={match.id} className="col-12 col-md-6">
                                                         <MatchInput
                                                             match={match}
@@ -447,12 +524,22 @@ export default function TournamentPage() {
                             {/* Semi Finals */}
                             <div className="col-12">
                                 <div className="card shadow-sm">
-                                    <div className="card-header bg-white">
-                                        <h5 className="mb-0">Bán kết</h5>
+                                    <div className="card-header bg-white py-3">
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <div className="d-flex align-items-center">
+                                                <FaArrowRight className="text-warning me-2" />
+                                                <h5 className="mb-0">Bán kết</h5>
+                                            </div>
+                                            {tournament?.semiFinals.length > 0 && (
+                                                <span className="badge bg-warning">
+                                                    {tournament.semiFinals.filter(m => m.completed).length}/2 trận
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                     <div className="card-body">
                                         <div className="row g-3">
-                                            {tournament.semiFinals.map(match => (
+                                            {tournament?.semiFinals.map(match => (
                                                 <div key={match.id} className="col-12 col-md-6">
                                                     <MatchInput
                                                         match={match}
@@ -468,23 +555,32 @@ export default function TournamentPage() {
                             {/* Finals */}
                             <div className="col-12">
                                 <div className="card shadow-sm">
-                                    <div className="card-header bg-white">
-                                        <h5 className="mb-0">Chung kết</h5>
+                                    <div className="card-header bg-white py-3">
+                                        <div className="d-flex align-items-center">
+                                            <FaTrophy className="text-warning me-2" />
+                                            <h5 className="mb-0">Chung kết</h5>
+                                        </div>
                                     </div>
                                     <div className="card-body">
-                                        <div className="row g-3">
-                                            {tournament.final && (
+                                        <div className="row g-4">
+                                            {tournament?.final && (
                                                 <div className="col-12 col-md-6">
-                                                    <h6 className="mb-3">Trận chung kết</h6>
+                                                    <div className="d-flex align-items-center mb-3">
+                                                        <FaTrophy className="text-warning me-2" />
+                                                        <h6 className="mb-0">Trận chung kết</h6>
+                                                    </div>
                                                     <MatchInput
                                                         match={tournament.final}
                                                         onUpdate={(score1, score2) => updateMatch(tournament.final!, score1, score2)}
                                                     />
                                                 </div>
                                             )}
-                                            {tournament.thirdPlace && (
+                                            {tournament?.thirdPlace && (
                                                 <div className="col-12 col-md-6">
-                                                    <h6 className="mb-3">Tranh hạng 3</h6>
+                                                    <div className="d-flex align-items-center mb-3">
+                                                        <FaMedal className="text-bronze me-2" />
+                                                        <h6 className="mb-0">Tranh hạng 3</h6>
+                                                    </div>
                                                     <MatchInput
                                                         match={tournament.thirdPlace}
                                                         onUpdate={(score1, score2) => updateMatch(tournament.thirdPlace!, score1, score2)}
@@ -499,6 +595,51 @@ export default function TournamentPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Add custom styles */}
+            <style jsx global>{`
+                .max-width-1440 {
+                    max-width: 1440px;
+                    margin: 0 auto;
+                }
+                
+                .card {
+                    transition: all 0.3s ease;
+                }
+                
+                .card:hover {
+                    transform: translateY(-2px);
+                }
+                
+                .text-bronze {
+                    color: #CD7F32;
+                }
+                
+                .match-card {
+                    transition: all 0.3s ease;
+                }
+                
+                .match-card:hover {
+                    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                }
+                
+                .table th {
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    font-size: 0.8rem;
+                    letter-spacing: 0.5px;
+                }
+                
+                .progress {
+                    border-radius: 10px;
+                    background-color: #e9ecef;
+                }
+                
+                .progress-bar {
+                    border-radius: 10px;
+                    transition: width 0.6s ease;
+                }
+            `}</style>
         </div>
     );
 } 
