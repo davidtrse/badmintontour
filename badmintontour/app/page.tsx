@@ -407,7 +407,7 @@ export default function TournamentPage() {
 
                 <div className="row g-3">
                     {/* Group Stage */}
-                    <div className="col-12 col-xxl-7">
+                    <div className="col-12 col-xxl-6">
                         <div className="card shadow-sm">
                             <div className="card-header bg-white py-2">
                                 <div className="d-flex align-items-center">
@@ -419,7 +419,7 @@ export default function TournamentPage() {
                                 <div className="row g-2">
                                     {tournament?.groups.map(group => (
                                         <div key={group.id} className="col-12 col-xl-6">
-                                            <div className="card h-100 border-0 shadow-sm">
+                                            <div className={`card group-card group-${group.name.split(' ')[1]}`}>
                                                 <div className="card-header bg-white py-2">
                                                     <div className="d-flex justify-content-between align-items-center">
                                                         <h6 className="mb-0" style={{ fontSize: '0.85rem' }}>{group.name}</h6>
@@ -477,10 +477,12 @@ export default function TournamentPage() {
                                                     <div className="row g-2">
                                                         {group.matches.map(match => (
                                                             <div key={match.id} className="col-12">
-                                                                <MatchInput
-                                                                    match={match}
-                                                                    onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
-                                                                />
+                                                                <div className="match-input">
+                                                                    <MatchInput
+                                                                        match={match}
+                                                                        onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
+                                                                    />
+                                                                </div>
                                                             </div>
                                                         ))}
                                                     </div>
@@ -494,11 +496,11 @@ export default function TournamentPage() {
                     </div>
 
                     {/* Knockout Stages */}
-                    <div className="col-12 col-xxl-5">
+                    <div className="col-12 col-xxl-6">
                         <div className="row g-3">
                             {/* Quarter Finals */}
                             <div className="col-12">
-                                <div className="card shadow-sm">
+                                <div className="card knockout-stage">
                                     <div className="card-header bg-white py-3">
                                         <div className="d-flex justify-content-between align-items-center">
                                             <div className="d-flex align-items-center">
@@ -526,10 +528,12 @@ export default function TournamentPage() {
                                             <div className="row g-3">
                                                 {tournament?.quarterFinals.map(match => (
                                                     <div key={match.id} className="col-12 col-md-6">
-                                                        <MatchInput
-                                                            match={match}
-                                                            onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
-                                                        />
+                                                        <div className="knockout-match">
+                                                            <MatchInput
+                                                                match={match}
+                                                                onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -616,16 +620,27 @@ export default function TournamentPage() {
             {/* Update custom styles */}
             <style jsx global>{`
                 .max-width-1200 {
-                    max-width: 1200px;
+                    max-width: 1400px;
                     margin: 0 auto;
                 }
                 
                 .card {
                     transition: all 0.2s ease;
+                    border: none;
                 }
                 
                 .card:hover {
                     transform: translateY(-1px);
+                }
+
+                .form-control {
+                    border-radius: 6px;
+                    padding: 0.5rem 0.75rem;
+                    font-size: 0.9rem;
+                }
+
+                .form-control:focus {
+                    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.15);
                 }
                 
                 .text-bronze {
@@ -636,6 +651,7 @@ export default function TournamentPage() {
                     font-weight: 600;
                     text-transform: uppercase;
                     letter-spacing: 0.3px;
+                    background-color: #f8f9fa;
                 }
                 
                 .progress {
@@ -649,20 +665,58 @@ export default function TournamentPage() {
                     transition: width 0.6s ease;
                 }
 
-                .form-control {
-                    border-radius: 4px;
-                }
-
                 .badge {
                     font-weight: 500;
+                    padding: 0.4em 0.8em;
                 }
 
                 .table td {
-                    padding: 0.4rem;
+                    padding: 0.6rem;
                 }
 
                 .card-header {
                     border-bottom: 1px solid rgba(0,0,0,0.08);
+                    padding: 1rem;
+                }
+
+                /* Group styles */
+                .group-card {
+                    margin-bottom: 1.5rem;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+                }
+
+                .group-A { background-color: rgba(255, 99, 132, 0.05); }
+                .group-B { background-color: rgba(54, 162, 235, 0.05); }
+                .group-C { background-color: rgba(255, 206, 86, 0.05); }
+                .group-D { background-color: rgba(75, 192, 192, 0.05); }
+
+                /* Match input styles */
+                .match-input {
+                    background-color: white;
+                    border-radius: 8px;
+                    padding: 1rem;
+                    margin-bottom: 0.5rem;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                }
+
+                .match-input:hover {
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+                }
+
+                /* Knockout stage styles */
+                .knockout-stage {
+                    background-color: white;
+                    border-radius: 8px;
+                    padding: 1.5rem;
+                    margin-bottom: 1rem;
+                }
+
+                .knockout-match {
+                    border: 1px solid rgba(0,0,0,0.1);
+                    border-radius: 6px;
+                    padding: 1rem;
+                    margin-bottom: 1rem;
                 }
             `}</style>
         </div>
