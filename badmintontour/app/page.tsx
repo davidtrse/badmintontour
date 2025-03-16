@@ -145,6 +145,70 @@ function TournamentStatus({ tournament }: { tournament: Tournament }) {
     );
 }
 
+// Add new TournamentBracket component
+function TournamentBracket({ tournament, onUpdateMatch }: {
+    tournament: Tournament;
+    onUpdateMatch: (match: Match, score1: number, score2: number) => void;
+}) {
+    return (
+        <div className="tournament-bracket card shadow-sm">
+            <div className="card-header bg-white py-3">
+                <div className="d-flex align-items-center">
+                    <FaTrophy className="text-warning me-2" />
+                    <h5 className="mb-0">Sơ đồ giải đấu</h5>
+                </div>
+            </div>
+            <div className="card-body position-relative">
+                <div className="bracket-container">
+                    {/* Quarter Finals */}
+                    <div className="bracket-round">
+                        <div className="bracket-title">Tứ kết</div>
+                        <div className="bracket-matches">
+                            {tournament.quarterFinals.map((match, index) => (
+                                <div key={match.id} className="bracket-match">
+                                    <MatchInput match={match} onUpdate={(s1, s2) => onUpdateMatch(match, s1, s2)} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Semi Finals */}
+                    <div className="bracket-round">
+                        <div className="bracket-title">Bán kết</div>
+                        <div className="bracket-matches">
+                            {tournament.semiFinals.map((match, index) => (
+                                <div key={match.id} className="bracket-match">
+                                    <MatchInput match={match} onUpdate={(s1, s2) => onUpdateMatch(match, s1, s2)} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Finals */}
+                    <div className="bracket-round">
+                        <div className="bracket-title">Chung kết</div>
+                        <div className="bracket-matches">
+                            {tournament.final && (
+                                <div className="bracket-match">
+                                    <MatchInput match={tournament.final} onUpdate={(s1, s2) => onUpdateMatch(tournament.final!, s1, s2)} />
+                                </div>
+                            )}
+                            {tournament.thirdPlace && (
+                                <div className="bracket-match mt-4">
+                                    <div className="text-center mb-2">
+                                        <span className="badge bg-bronze">Tranh hạng 3</span>
+                                    </div>
+                                    <MatchInput match={tournament.thirdPlace} onUpdate={(s1, s2) => onUpdateMatch(tournament.thirdPlace!, s1, s2)} />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 export default function TournamentPage() {
     const [tournament, setTournament] = useState<Tournament | null>(null);
     const [loading, setLoading] = useState(true);
@@ -404,6 +468,13 @@ export default function TournamentPage() {
                             </div>
                             {tournament && <TournamentStatus tournament={tournament} />}
                         </div>
+                    </div>
+                </div>
+
+                {/* Add Tournament Bracket before the group stage */}
+                <div className="row g-3 mb-3">
+                    <div className="col-12">
+                        <TournamentBracket tournament={tournament} onUpdateMatch={updateMatch} />
                     </div>
                 </div>
 
@@ -793,6 +864,77 @@ export default function TournamentPage() {
                 .group-header h6 {
                     margin: 0;
                     font-size: 0.8rem;
+                }
+
+                /* Tournament Bracket Styles */
+                .bracket-container {
+                    display: flex;
+                    justify-content: space-between;
+                    padding: 20px 0;
+                    overflow-x: auto;
+                }
+
+                .bracket-round {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                    min-width: 300px;
+                    position: relative;
+                }
+
+                .bracket-title {
+                    text-align: center;
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                    color: #666;
+                    margin-bottom: 10px;
+                }
+
+                .bracket-matches {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 30px;
+                    position: relative;
+                }
+
+                .bracket-match {
+                    position: relative;
+                }
+
+                /* Lines connecting matches */
+                .bracket-matches::before {
+                    content: '';
+                    position: absolute;
+                    right: -20px;
+                    width: 20px;
+                    border-top: 2px solid #ddd;
+                    top: 50%;
+                }
+
+                .bracket-round:not(:last-child) .bracket-matches::after {
+                    content: '';
+                    position: absolute;
+                    right: -20px;
+                    height: calc(50% + 15px);
+                    width: 2px;
+                    background: #ddd;
+                    top: 25%;
+                }
+
+                .bg-bronze {
+                    background-color: #CD7F32 !important;
+                    color: white;
+                }
+
+                /* Make the bracket container scrollable on mobile */
+                @media (max-width: 1200px) {
+                    .bracket-container {
+                        padding-bottom: 20px;
+                    }
+                    
+                    .bracket-round {
+                        min-width: 280px;
+                    }
                 }
             `}</style>
         </div>
