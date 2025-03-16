@@ -60,38 +60,40 @@ function MatchInput({ match, onUpdate }: { match: Match; onUpdate: (score1: numb
                 </div>
                 <div className="mb-2">
                     <div className={`d-flex align-items-center justify-content-between p-1 rounded ${isTeam1Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
-                        <div className="flex-grow-1 me-2">
+                        <div className="flex-grow-1 me-3">
                             <TeamDisplay team={match.team1} isWinner={isTeam1Winner} compact={true} />
                         </div>
-                        <input
-                            type="number"
-                            className="form-control form-control-sm"
-                            min="0"
-                            value={match.score1 ?? ''}
-                            onChange={(e) => {
-                                const score1 = parseInt(e.target.value) || 0;
-                                const score2 = match.score2 ?? 0;
-                                onUpdate(score1, score2);
-                            }}
-                            style={{ width: '40px', padding: '0.2rem', fontSize: '0.8rem' }}
-                        />
+                        <div className="score-input-wrapper">
+                            <input
+                                type="number"
+                                className="form-control form-control-sm score-input"
+                                min="0"
+                                value={match.score1 ?? ''}
+                                onChange={(e) => {
+                                    const score1 = parseInt(e.target.value) || 0;
+                                    const score2 = match.score2 ?? 0;
+                                    onUpdate(score1, score2);
+                                }}
+                            />
+                        </div>
                     </div>
                     <div className={`d-flex align-items-center justify-content-between p-1 rounded mt-1 ${isTeam2Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
-                        <div className="flex-grow-1 me-2">
+                        <div className="flex-grow-1 me-3">
                             <TeamDisplay team={match.team2} isWinner={isTeam2Winner} compact={true} />
                         </div>
-                        <input
-                            type="number"
-                            className="form-control form-control-sm"
-                            min="0"
-                            value={match.score2 ?? ''}
-                            onChange={(e) => {
-                                const score2 = parseInt(e.target.value) || 0;
-                                const score1 = match.score1 ?? 0;
-                                onUpdate(score1, score2);
-                            }}
-                            style={{ width: '40px', padding: '0.2rem', fontSize: '0.8rem' }}
-                        />
+                        <div className="score-input-wrapper">
+                            <input
+                                type="number"
+                                className="form-control form-control-sm score-input"
+                                min="0"
+                                value={match.score2 ?? ''}
+                                onChange={(e) => {
+                                    const score2 = parseInt(e.target.value) || 0;
+                                    const score1 = match.score1 ?? 0;
+                                    onUpdate(score1, score2);
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
                 {match.completed && (
@@ -634,13 +636,14 @@ export default function TournamentPage() {
                 }
 
                 .form-control {
-                    border-radius: 6px;
-                    padding: 0.5rem 0.75rem;
-                    font-size: 0.9rem;
+                    border-radius: 4px;
+                    padding: 0.35rem 0.5rem;
+                    font-size: 0.8rem;
+                    height: 28px;
                 }
 
                 .form-control:focus {
-                    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.15);
+                    box-shadow: 0 0 0 0.15rem rgba(0,123,255,0.15);
                 }
                 
                 .text-bronze {
@@ -652,12 +655,14 @@ export default function TournamentPage() {
                     text-transform: uppercase;
                     letter-spacing: 0.3px;
                     background-color: #f8f9fa;
+                    font-size: 0.7rem;
+                    padding: 0.5rem;
                 }
                 
                 .progress {
                     border-radius: 8px;
                     background-color: #e9ecef;
-                    height: 8px;
+                    height: 6px;
                 }
                 
                 .progress-bar {
@@ -667,56 +672,127 @@ export default function TournamentPage() {
 
                 .badge {
                     font-weight: 500;
-                    padding: 0.4em 0.8em;
+                    padding: 0.25em 0.6em;
+                    font-size: 0.75rem !important;
                 }
 
                 .table td {
-                    padding: 0.6rem;
+                    padding: 0.4rem 0.5rem;
+                    font-size: 0.75rem;
                 }
 
                 .card-header {
                     border-bottom: 1px solid rgba(0,0,0,0.08);
-                    padding: 1rem;
+                    padding: 0.75rem;
                 }
 
                 /* Group styles */
                 .group-card {
-                    margin-bottom: 1.5rem;
+                    margin-bottom: 1rem;
                     border-radius: 8px;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
                 }
 
-                .group-A { background-color: rgba(255, 99, 132, 0.05); }
-                .group-B { background-color: rgba(54, 162, 235, 0.05); }
-                .group-C { background-color: rgba(255, 206, 86, 0.05); }
-                .group-D { background-color: rgba(75, 192, 192, 0.05); }
+                .group-A { 
+                    background-color: rgba(255, 99, 132, 0.03);
+                    border-left: 3px solid rgba(255, 99, 132, 0.5);
+                }
+                .group-B { 
+                    background-color: rgba(54, 162, 235, 0.03);
+                    border-left: 3px solid rgba(54, 162, 235, 0.5);
+                }
+                .group-C { 
+                    background-color: rgba(255, 206, 86, 0.03);
+                    border-left: 3px solid rgba(255, 206, 86, 0.5);
+                }
+                .group-D { 
+                    background-color: rgba(75, 192, 192, 0.03);
+                    border-left: 3px solid rgba(75, 192, 192, 0.5);
+                }
 
                 /* Match input styles */
                 .match-input {
                     background-color: white;
-                    border-radius: 8px;
-                    padding: 1rem;
+                    border-radius: 6px;
+                    padding: 0.75rem;
                     margin-bottom: 0.5rem;
-                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+                    border: 1px solid rgba(0,0,0,0.05);
                 }
 
                 .match-input:hover {
-                    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
                 }
 
                 /* Knockout stage styles */
                 .knockout-stage {
                     background-color: white;
                     border-radius: 8px;
-                    padding: 1.5rem;
+                    padding: 1rem;
                     margin-bottom: 1rem;
+                    border: 1px solid rgba(0,0,0,0.08);
                 }
 
                 .knockout-match {
-                    border: 1px solid rgba(0,0,0,0.1);
+                    border: 1px solid rgba(0,0,0,0.08);
                     border-radius: 6px;
-                    padding: 1rem;
-                    margin-bottom: 1rem;
+                    padding: 0.75rem;
+                    margin-bottom: 0.75rem;
+                    background-color: #fcfcfc;
+                }
+
+                /* Consistent heading sizes */
+                h5 { font-size: 0.95rem !important; }
+                h6 { font-size: 0.85rem !important; }
+
+                /* Table column widths */
+                .table th:not(:first-child),
+                .table td:not(:first-child) {
+                    width: 40px;
+                    text-align: center;
+                }
+
+                .table th:first-child,
+                .table td:first-child {
+                    min-width: 140px;
+                }
+
+                /* Match score inputs */
+                .score-input-wrapper {
+                    min-width: 45px;
+                    margin-left: 8px;
+                }
+                
+                .score-input {
+                    width: 45px !important;
+                    text-align: center;
+                    padding: 0.25rem !important;
+                    font-weight: 500;
+                }
+
+                .score-input::-webkit-inner-spin-button,
+                .score-input::-webkit-outer-spin-button {
+                    opacity: 1;
+                    height: 24px;
+                }
+
+                /* Status badges */
+                .status-badge {
+                    font-size: 0.7rem;
+                    padding: 0.2em 0.5em;
+                }
+
+                /* Group header */
+                .group-header {
+                    display: flex;
+                    align-items: center;
+                    padding: 0.5rem 0.75rem;
+                    border-bottom: 1px solid rgba(0,0,0,0.05);
+                }
+
+                .group-header h6 {
+                    margin: 0;
+                    font-size: 0.8rem;
                 }
             `}</style>
         </div>
