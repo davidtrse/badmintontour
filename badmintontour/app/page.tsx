@@ -199,6 +199,99 @@ export default function TournamentPage() {
         setTournament(updatedTournament);
     }
 
+    // Add new function to generate random scores
+    function generateRandomScore(): { score1: number; score2: number } {
+        const maxScore = 21;
+        let score1, score2;
+
+        do {
+            score1 = Math.floor(Math.random() * maxScore);
+            score2 = Math.floor(Math.random() * maxScore);
+        } while (score1 === score2); // Ensure there's always a winner
+
+        // Make sure at least one score is 21
+        if (score1 > score2) {
+            score1 = 21;
+        } else {
+            score2 = 21;
+        }
+
+        return { score1, score2 };
+    }
+
+    // Add function to automatically fill all matches with random scores
+    async function autoFillRandomScores() {
+        if (!tournament) return;
+
+        const updatedTournament = { ...tournament };
+
+        // Fill group matches
+        updatedTournament.groups = tournament.groups.map(group => ({
+            ...group,
+            matches: group.matches.map(match => {
+                if (!match.completed) {
+                    const { score1, score2 } = generateRandomScore();
+                    const winner = score1 > score2 ? match.team1 : match.team2;
+                    return { ...match, score1, score2, winner, completed: true };
+                }
+                return match;
+            })
+        }));
+
+        // Generate and fill quarter finals if needed
+        if (updatedTournament.quarterFinals.length === 0) {
+            updatedTournament.quarterFinals = generateQuarterFinals(updatedTournament);
+        }
+
+        // Fill quarter finals
+        updatedTournament.quarterFinals = updatedTournament.quarterFinals.map(match => {
+            if (!match.completed) {
+                const { score1, score2 } = generateRandomScore();
+                const winner = score1 > score2 ? match.team1 : match.team2;
+                return { ...match, score1, score2, winner, completed: true };
+            }
+            return match;
+        });
+
+        // Generate and fill semi finals if needed
+        if (updatedTournament.quarterFinals.every(m => m.completed) && updatedTournament.semiFinals.length === 0) {
+            updatedTournament.semiFinals = generateSemiFinals(updatedTournament.quarterFinals);
+        }
+
+        // Fill semi finals
+        updatedTournament.semiFinals = updatedTournament.semiFinals.map(match => {
+            if (!match.completed) {
+                const { score1, score2 } = generateRandomScore();
+                const winner = score1 > score2 ? match.team1 : match.team2;
+                return { ...match, score1, score2, winner, completed: true };
+            }
+            return match;
+        });
+
+        // Generate and fill finals if needed
+        if (updatedTournament.semiFinals.every(m => m.completed) && !updatedTournament.final) {
+            const finals = generateFinals(updatedTournament.semiFinals);
+            updatedTournament.final = finals.final;
+            updatedTournament.thirdPlace = finals.thirdPlace;
+        }
+
+        // Fill final and third place matches
+        if (updatedTournament.final && !updatedTournament.final.completed) {
+            const { score1, score2 } = generateRandomScore();
+            const winner = score1 > score2 ? updatedTournament.final.team1 : updatedTournament.final.team2;
+            updatedTournament.final = { ...updatedTournament.final, score1, score2, winner, completed: true };
+        }
+
+        if (updatedTournament.thirdPlace && !updatedTournament.thirdPlace.completed) {
+            const { score1, score2 } = generateRandomScore();
+            const winner = score1 > score2 ? updatedTournament.thirdPlace.team1 : updatedTournament.thirdPlace.team2;
+            updatedTournament.thirdPlace = { ...updatedTournament.thirdPlace, score1, score2, winner, completed: true };
+        }
+
+        await db.saveTournament(updatedTournament);
+        setTournament(updatedTournament);
+    }
+
     if (loading) {
         return (
             <div className="d-flex align-items-center justify-content-center min-vh-100">
@@ -238,6 +331,15 @@ export default function TournamentPage() {
 
             {/* Main Content */}
             <div className="container-fluid max-width-1440 py-4">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h2 className="mb-0">Giải đấu cầu lông</h2>
+                    <button
+                        className="btn btn-primary"
+                        onClick={autoFillRandomScores}
+                    >
+                        Tự động điền điểm ngẫu nhiên
+                    </button>
+                </div>
                 <div className="row g-4">
                     {/* Group Stage */}
                     <div className="col-12 col-xxl-7">
