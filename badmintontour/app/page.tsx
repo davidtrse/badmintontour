@@ -759,12 +759,12 @@ export default function TournamentPage() {
 
                 /* Match score inputs */
                 .score-input-wrapper {
-                    min-width: 45px;
+                    min-width: 60px;
                     margin-left: 8px;
                 }
                 
                 .score-input {
-                    width: 45px !important;
+                    width: 60px !important;
                     text-align: center;
                     padding: 0.25rem !important;
                     font-weight: 500;
