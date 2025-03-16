@@ -22,13 +22,13 @@ function getClubColor(club: string): ClubColor {
     return CLUB_COLORS[club as keyof typeof CLUB_COLORS] || 'secondary';
 }
 
-function TeamDisplay({ team, isWinner = false }: { team: Team; isWinner?: boolean }) {
+function TeamDisplay({ team, isWinner = false, compact = false }: { team: Team; isWinner?: boolean; compact?: boolean }) {
     const clubColor = getClubColor(team.club);
 
     return (
         <div className="d-flex align-items-center gap-2">
-            <span className={`badge bg-${clubColor} text-wrap`} style={{ minWidth: '60px' }}>{team.club}</span>
-            <span className={`fw-bold ${isWinner ? 'text-success' : ''}`}>{team.name}</span>
+            <span className={`badge bg-${clubColor} text-nowrap ${compact ? 'badge-sm' : ''}`} style={{ minWidth: compact ? '40px' : '50px' }}>{team.club}</span>
+            <span className={`fw-bold ${isWinner ? 'text-success' : ''} text-truncate`}>{team.name}</span>
         </div>
     );
 }
@@ -45,12 +45,12 @@ function MatchInput({ match, onUpdate }: { match: Match; onUpdate: (score1: numb
                 </div>
                 <div className="mb-3">
                     <div className={`d-flex align-items-center justify-content-between p-2 rounded ${isTeam1Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
-                        <div className="flex-grow-1">
+                        <div className="flex-grow-1 me-2">
                             <TeamDisplay team={match.team1} isWinner={isTeam1Winner} />
                         </div>
                         <input
                             type="number"
-                            className="form-control form-control-sm w-auto"
+                            className="form-control form-control-sm"
                             min="0"
                             value={match.score1 ?? ''}
                             onChange={(e) => {
@@ -58,16 +58,16 @@ function MatchInput({ match, onUpdate }: { match: Match; onUpdate: (score1: numb
                                 const score2 = match.score2 ?? 0;
                                 onUpdate(score1, score2);
                             }}
-                            style={{ width: '60px' }}
+                            style={{ width: '45px', padding: '0.25rem' }}
                         />
                     </div>
                     <div className={`d-flex align-items-center justify-content-between p-2 rounded mt-2 ${isTeam2Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
-                        <div className="flex-grow-1">
+                        <div className="flex-grow-1 me-2">
                             <TeamDisplay team={match.team2} isWinner={isTeam2Winner} />
                         </div>
                         <input
                             type="number"
-                            className="form-control form-control-sm w-auto"
+                            className="form-control form-control-sm"
                             min="0"
                             value={match.score2 ?? ''}
                             onChange={(e) => {
@@ -75,7 +75,7 @@ function MatchInput({ match, onUpdate }: { match: Match; onUpdate: (score1: numb
                                 const score1 = match.score1 ?? 0;
                                 onUpdate(score1, score2);
                             }}
-                            style={{ width: '60px' }}
+                            style={{ width: '45px', padding: '0.25rem' }}
                         />
                     </div>
                 </div>
@@ -160,6 +160,15 @@ export default function TournamentPage() {
                 }
                 return group;
             });
+
+            // Check if all group matches are completed to generate quarter finals
+            const allGroupMatchesCompleted = updatedTournament.groups.every(group =>
+                group.matches.every(m => m.completed)
+            );
+
+            if (allGroupMatchesCompleted && updatedTournament.quarterFinals.length === 0) {
+                updatedTournament.quarterFinals = generateQuarterFinals(updatedTournament);
+            }
         } else if (match.round === 'quarter') {
             updatedTournament.quarterFinals = tournament.quarterFinals.map(m =>
                 m.id === match.id ? updatedMatch : m
@@ -187,14 +196,6 @@ export default function TournamentPage() {
         }
 
         await db.saveTournament(updatedTournament);
-        setTournament(updatedTournament);
-    }
-
-    function generateQuarterFinalsHandler() {
-        if (!tournament) return;
-        const quarterFinals = generateQuarterFinals(tournament);
-        const updatedTournament = { ...tournament, quarterFinals };
-        db.saveTournament(updatedTournament);
         setTournament(updatedTournament);
     }
 
@@ -231,15 +232,6 @@ export default function TournamentPage() {
                         <button className="btn btn-outline-danger btn-sm" onClick={resetTournament}>
                             <FaRedo className="me-1" /> Reset
                         </button>
-                        <button
-                            className="btn btn-outline-primary btn-sm"
-                            onClick={() => {
-                                const testMatch = tournament.groups[0].matches[0];
-                                updateMatch(testMatch, 21, 19);
-                            }}
-                        >
-                            Auto Test
-                        </button>
                     </div>
                 </div>
             </nav>
@@ -255,6 +247,7 @@ export default function TournamentPage() {
                             </div>
                             <div className="card-body">
                                 <div className="row g-4">
+                                    {/* Group Stage */}
                                     {tournament.groups.map(group => (
                                         <div key={group.id} className="col-12 col-xl-6">
                                             <div className="card h-100">
@@ -262,15 +255,16 @@ export default function TournamentPage() {
                                                     <h6 className="mb-0">{group.name}</h6>
                                                 </div>
                                                 <div className="card-body">
+                                                    {/* Standings Table */}
                                                     <div className="table-responsive mb-4">
                                                         <table className="table table-sm table-hover">
                                                             <thead>
                                                                 <tr>
-                                                                    <th>Đội</th>
-                                                                    <th className="text-center">Điểm</th>
-                                                                    <th className="text-center">Thắng</th>
-                                                                    <th className="text-center">Thua</th>
-                                                                    <th className="text-center">Hiệu số</th>
+                                                                    <th style={{ minWidth: '180px' }}>Đội</th>
+                                                                    <th className="text-center" style={{ width: '50px' }}>Đ</th>
+                                                                    <th className="text-center" style={{ width: '50px' }}>T</th>
+                                                                    <th className="text-center" style={{ width: '50px' }}>B</th>
+                                                                    <th className="text-center" style={{ width: '50px' }}>HS</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -285,7 +279,7 @@ export default function TournamentPage() {
                                                                                     {isQualified && (
                                                                                         <div className="bg-success rounded-circle" style={{ width: '8px', height: '8px' }}></div>
                                                                                     )}
-                                                                                    <TeamDisplay team={standing.team} />
+                                                                                    <TeamDisplay team={standing.team} compact={true} />
                                                                                 </div>
                                                                             </td>
                                                                             <td className="text-center fw-bold">{standing.points}</td>
@@ -324,27 +318,26 @@ export default function TournamentPage() {
                             {/* Quarter Finals */}
                             <div className="col-12">
                                 <div className="card shadow-sm">
-                                    <div className="card-header bg-white d-flex justify-content-between align-items-center">
+                                    <div className="card-header bg-white">
                                         <h5 className="mb-0">Tứ kết</h5>
-                                        <button
-                                            className="btn btn-primary btn-sm"
-                                            onClick={generateQuarterFinalsHandler}
-                                            disabled={tournament.quarterFinals.length > 0}
-                                        >
-                                            <FaArrowRight className="me-1" /> Tạo trận
-                                        </button>
                                     </div>
                                     <div className="card-body">
-                                        <div className="row g-3">
-                                            {tournament.quarterFinals.map(match => (
-                                                <div key={match.id} className="col-12 col-md-6">
-                                                    <MatchInput
-                                                        match={match}
-                                                        onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
-                                                    />
-                                                </div>
-                                            ))}
-                                        </div>
+                                        {tournament.quarterFinals.length === 0 ? (
+                                            <div className="text-center text-muted py-4">
+                                                Tứ kết sẽ được tạo tự động sau khi hoàn thành vòng bảng
+                                            </div>
+                                        ) : (
+                                            <div className="row g-3">
+                                                {tournament.quarterFinals.map(match => (
+                                                    <div key={match.id} className="col-12 col-md-6">
+                                                        <MatchInput
+                                                            match={match}
+                                                            onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
