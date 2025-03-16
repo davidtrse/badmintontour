@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --foreground-rgb: 0, 0, 0;
+    --background-start-rgb: 250, 250, 250;
+    --background-end-rgb: 255, 255, 255;
+}
+
+body {
+    color: rgb(var(--foreground-rgb));
+    background: linear-gradient(to bottom,
+            rgb(var(--background-start-rgb)),
+            rgb(var(--background-end-rgb)));
+    min-height: 100vh;
+}
+
+/* Ant Design customizations */
+.ant-layout {
+    background: transparent;
+}
+
+.ant-layout-header {
+    background: white;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    height: 64px;
+    padding: 0;
+    line-height: 64px;
+}
+
+.ant-card {
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    transition: all 0.3s;
+}
+
+.ant-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.ant-table-small .ant-table-thead>tr>th {
+    background-color: #fafafa;
+}
+
+.ant-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.ant-space {
+    width: 100%;
+}
+
+/* Tournament bracket specific styles */
+.tournament-bracket {
+    padding: 2rem;
+    background: linear-gradient(135deg, #f0f5ff 0%, #f6f0ff 100%);
+    border-radius: 1rem;
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+.match-box {
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+}
+
+.match-box .ant-card-body {
+    padding: 12px;
+}
+
+.match-line {
+    stroke: #1890ff;
+    stroke-width: 2;
+    fill: none;
+    transition: all 0.3s;
+}
+
+.match-line:hover {
+    stroke-width: 3;
+    filter: drop-shadow(0 2px 4px rgba(24, 144, 255, 0.2));
+}
+
+/* Text truncation */
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Tournament bracket grid */
+.tournament-bracket .grid {
+    min-width: 1200px;
+    padding: 1rem;
+}
