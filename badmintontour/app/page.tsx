@@ -26,9 +26,22 @@ function TeamDisplay({ team, isWinner = false, compact = false }: { team: Team; 
     const clubColor = getClubColor(team.club);
 
     return (
-        <div className="d-flex align-items-center gap-2">
-            <span className={`badge bg-${clubColor} text-nowrap ${compact ? 'badge-sm' : ''}`} style={{ minWidth: compact ? '40px' : '50px' }}>{team.club}</span>
-            <span className={`fw-bold ${isWinner ? 'text-success' : ''} text-truncate`}>{team.name}</span>
+        <div className="d-flex align-items-center gap-1">
+            <span className={`badge bg-${clubColor} text-nowrap ${compact ? 'badge-sm' : ''}`}
+                style={{
+                    minWidth: compact ? '35px' : '40px',
+                    fontSize: compact ? '0.7rem' : '0.75rem',
+                    padding: compact ? '0.2rem 0.4rem' : '0.25rem 0.5rem'
+                }}>
+                {team.club}
+            </span>
+            <span className={`${isWinner ? 'text-success' : ''} text-truncate`}
+                style={{
+                    fontSize: compact ? '0.8rem' : '0.85rem',
+                    fontWeight: 500
+                }}>
+                {team.name}
+            </span>
         </div>
     );
 }
@@ -38,15 +51,17 @@ function MatchInput({ match, onUpdate }: { match: Match; onUpdate: (score1: numb
     const isTeam2Winner = match.completed && match.winner?.id === match.team2.id;
 
     return (
-        <div className="card shadow-sm hover:shadow-lg transition-all">
-            <div className="card-body p-3">
+        <div className="card shadow-sm hover:shadow-lg transition-all" style={{ fontSize: '0.85rem' }}>
+            <div className="card-body p-2">
                 <div className="text-center mb-2">
-                    <span className="badge bg-primary">{match.group ? `Bảng ${match.group}` : 'Vòng loại trực tiếp'}</span>
+                    <span className="badge bg-primary" style={{ fontSize: '0.75rem' }}>
+                        {match.group ? `Bảng ${match.group}` : 'Vòng loại trực tiếp'}
+                    </span>
                 </div>
-                <div className="mb-3">
-                    <div className={`d-flex align-items-center justify-content-between p-2 rounded ${isTeam1Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
+                <div className="mb-2">
+                    <div className={`d-flex align-items-center justify-content-between p-1 rounded ${isTeam1Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
                         <div className="flex-grow-1 me-2">
-                            <TeamDisplay team={match.team1} isWinner={isTeam1Winner} />
+                            <TeamDisplay team={match.team1} isWinner={isTeam1Winner} compact={true} />
                         </div>
                         <input
                             type="number"
@@ -58,12 +73,12 @@ function MatchInput({ match, onUpdate }: { match: Match; onUpdate: (score1: numb
                                 const score2 = match.score2 ?? 0;
                                 onUpdate(score1, score2);
                             }}
-                            style={{ width: '45px', padding: '0.25rem' }}
+                            style={{ width: '40px', padding: '0.2rem', fontSize: '0.8rem' }}
                         />
                     </div>
-                    <div className={`d-flex align-items-center justify-content-between p-2 rounded mt-2 ${isTeam2Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
+                    <div className={`d-flex align-items-center justify-content-between p-1 rounded mt-1 ${isTeam2Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
                         <div className="flex-grow-1 me-2">
-                            <TeamDisplay team={match.team2} isWinner={isTeam2Winner} />
+                            <TeamDisplay team={match.team2} isWinner={isTeam2Winner} compact={true} />
                         </div>
                         <input
                             type="number"
@@ -75,16 +90,16 @@ function MatchInput({ match, onUpdate }: { match: Match; onUpdate: (score1: numb
                                 const score1 = match.score1 ?? 0;
                                 onUpdate(score1, score2);
                             }}
-                            style={{ width: '45px', padding: '0.25rem' }}
+                            style={{ width: '40px', padding: '0.2rem', fontSize: '0.8rem' }}
                         />
                     </div>
                 </div>
                 {match.completed && (
-                    <div className="text-center border-top pt-2">
-                        <div className="d-flex align-items-center justify-content-center gap-2">
-                            <FaCheck className="text-success" />
+                    <div className="text-center border-top pt-1">
+                        <div className="d-flex align-items-center justify-content-center gap-1" style={{ fontSize: '0.8rem' }}>
+                            <FaCheck className="text-success" style={{ fontSize: '0.7rem' }} />
                             <span className="text-success">
-                                Người thắng: <TeamDisplay team={match.winner!} isWinner={true} />
+                                Thắng: <TeamDisplay team={match.winner!} isWinner={true} compact={true} />
                             </span>
                         </div>
                     </div>
@@ -349,25 +364,27 @@ export default function TournamentPage() {
     return (
         <div className="min-vh-100 bg-light">
             {/* Enhanced Header */}
-            <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top">
-                <div className="container-fluid max-width-1440">
+            <nav className="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm sticky-top py-2">
+                <div className="container-fluid max-width-1200">
                     <span className="navbar-brand fw-bold d-flex align-items-center">
-                        <FaTrophy className="me-2" style={{ fontSize: '1.5rem' }} />
-                        <span style={{ fontSize: '1.2rem' }}>ROLEX CHAMPION</span>
+                        <FaTrophy className="me-2" style={{ fontSize: '1.2rem' }} />
+                        <span style={{ fontSize: '1rem' }}>ROLEX CHAMPION</span>
                     </span>
-                    <div className="d-flex gap-3 align-items-center">
+                    <div className="d-flex gap-2 align-items-center">
                         <button
-                            className="btn btn-outline-light btn-sm d-flex align-items-center gap-2"
+                            className="btn btn-outline-light btn-sm d-flex align-items-center gap-1"
                             onClick={autoFillRandomScores}
+                            style={{ fontSize: '0.8rem' }}
                         >
-                            <FaRedo className="me-1" />
+                            <FaRedo className="me-1" style={{ fontSize: '0.7rem' }} />
                             Điền điểm ngẫu nhiên
                         </button>
                         <button
-                            className="btn btn-danger btn-sm d-flex align-items-center gap-2"
+                            className="btn btn-danger btn-sm d-flex align-items-center gap-1"
                             onClick={resetTournament}
+                            style={{ fontSize: '0.8rem' }}
                         >
-                            <FaRedo className="me-1" />
+                            <FaRedo className="me-1" style={{ fontSize: '0.7rem' }} />
                             Khởi tạo lại
                         </button>
                     </div>
@@ -375,53 +392,53 @@ export default function TournamentPage() {
             </nav>
 
             {/* Main Content with Enhanced Layout */}
-            <div className="container-fluid max-width-1440 py-4">
-                <div className="card shadow-sm mb-4">
-                    <div className="card-body">
-                        <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div className="container-fluid max-width-1200 py-3">
+                <div className="card shadow-sm mb-3">
+                    <div className="card-body py-2">
+                        <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
                             <div>
-                                <h4 className="mb-1">Giải Cầu Lông ROLEX CHAMPION 2024</h4>
-                                <p className="text-muted mb-0">Theo dõi và cập nhật kết quả trực tiếp</p>
+                                <h5 className="mb-0" style={{ fontSize: '1.1rem' }}>Giải Cầu Lông ROLEX CHAMPION 2024</h5>
+                                <p className="text-muted mb-0" style={{ fontSize: '0.8rem' }}>Theo dõi và cập nhật kết quả trực tiếp</p>
                             </div>
                             {tournament && <TournamentStatus tournament={tournament} />}
                         </div>
                     </div>
                 </div>
 
-                <div className="row g-4">
-                    {/* Group Stage with Enhanced Cards */}
+                <div className="row g-3">
+                    {/* Group Stage */}
                     <div className="col-12 col-xxl-7">
                         <div className="card shadow-sm">
-                            <div className="card-header bg-white py-3">
+                            <div className="card-header bg-white py-2">
                                 <div className="d-flex align-items-center">
-                                    <FaTrophy className="text-warning me-2" />
-                                    <h5 className="mb-0">Vòng Bảng</h5>
+                                    <FaTrophy className="text-warning me-2" style={{ fontSize: '0.9rem' }} />
+                                    <h6 className="mb-0" style={{ fontSize: '0.9rem' }}>Vòng Bảng</h6>
                                 </div>
                             </div>
-                            <div className="card-body">
-                                <div className="row g-4">
+                            <div className="card-body p-2">
+                                <div className="row g-2">
                                     {tournament?.groups.map(group => (
                                         <div key={group.id} className="col-12 col-xl-6">
                                             <div className="card h-100 border-0 shadow-sm">
-                                                <div className="card-header bg-white py-3">
+                                                <div className="card-header bg-white py-2">
                                                     <div className="d-flex justify-content-between align-items-center">
-                                                        <h6 className="mb-0">{group.name}</h6>
-                                                        <span className="badge bg-primary">
+                                                        <h6 className="mb-0" style={{ fontSize: '0.85rem' }}>{group.name}</h6>
+                                                        <span className="badge bg-primary" style={{ fontSize: '0.75rem' }}>
                                                             {group.matches.filter(m => m.completed).length}/{group.matches.length} trận
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <div className="card-body">
-                                                    {/* Enhanced Standings Table */}
-                                                    <div className="table-responsive mb-4">
-                                                        <table className="table table-hover align-middle mb-0">
+                                                <div className="card-body p-2">
+                                                    {/* Standings Table */}
+                                                    <div className="table-responsive mb-2">
+                                                        <table className="table table-hover align-middle mb-0" style={{ fontSize: '0.8rem' }}>
                                                             <thead className="bg-light">
                                                                 <tr>
-                                                                    <th style={{ minWidth: '180px' }}>Đội</th>
-                                                                    <th className="text-center" style={{ width: '50px' }}>Đ</th>
-                                                                    <th className="text-center" style={{ width: '50px' }}>T</th>
-                                                                    <th className="text-center" style={{ width: '50px' }}>B</th>
-                                                                    <th className="text-center" style={{ width: '50px' }}>HS</th>
+                                                                    <th style={{ minWidth: '150px', fontSize: '0.75rem' }}>Đội</th>
+                                                                    <th className="text-center" style={{ width: '40px', fontSize: '0.75rem' }}>Đ</th>
+                                                                    <th className="text-center" style={{ width: '40px', fontSize: '0.75rem' }}>T</th>
+                                                                    <th className="text-center" style={{ width: '40px', fontSize: '0.75rem' }}>B</th>
+                                                                    <th className="text-center" style={{ width: '40px', fontSize: '0.75rem' }}>HS</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -450,14 +467,14 @@ export default function TournamentPage() {
                                                         </table>
                                                     </div>
 
-                                                    {/* Enhanced Matches Section */}
-                                                    <div className="d-flex justify-content-between align-items-center mb-3">
-                                                        <h6 className="mb-0">Trận đấu</h6>
-                                                        <span className="badge bg-secondary">
+                                                    {/* Matches Section */}
+                                                    <div className="d-flex justify-content-between align-items-center mb-2">
+                                                        <h6 className="mb-0" style={{ fontSize: '0.85rem' }}>Trận đấu</h6>
+                                                        <span className="badge bg-secondary" style={{ fontSize: '0.75rem' }}>
                                                             {group.matches.filter(m => m.completed).length} trận đã hoàn thành
                                                         </span>
                                                     </div>
-                                                    <div className="row g-3">
+                                                    <div className="row g-2">
                                                         {group.matches.map(match => (
                                                             <div key={match.id} className="col-12">
                                                                 <MatchInput
@@ -476,9 +493,9 @@ export default function TournamentPage() {
                         </div>
                     </div>
 
-                    {/* Enhanced Knockout Stages */}
+                    {/* Knockout Stages */}
                     <div className="col-12 col-xxl-5">
-                        <div className="row g-4">
+                        <div className="row g-3">
                             {/* Quarter Finals */}
                             <div className="col-12">
                                 <div className="card shadow-sm">
@@ -596,48 +613,56 @@ export default function TournamentPage() {
                 </div>
             </div>
 
-            {/* Add custom styles */}
+            {/* Update custom styles */}
             <style jsx global>{`
-                .max-width-1440 {
-                    max-width: 1440px;
+                .max-width-1200 {
+                    max-width: 1200px;
                     margin: 0 auto;
                 }
                 
                 .card {
-                    transition: all 0.3s ease;
+                    transition: all 0.2s ease;
                 }
                 
                 .card:hover {
-                    transform: translateY(-2px);
+                    transform: translateY(-1px);
                 }
                 
                 .text-bronze {
                     color: #CD7F32;
                 }
                 
-                .match-card {
-                    transition: all 0.3s ease;
-                }
-                
-                .match-card:hover {
-                    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-                }
-                
                 .table th {
                     font-weight: 600;
                     text-transform: uppercase;
-                    font-size: 0.8rem;
-                    letter-spacing: 0.5px;
+                    letter-spacing: 0.3px;
                 }
                 
                 .progress {
-                    border-radius: 10px;
+                    border-radius: 8px;
                     background-color: #e9ecef;
+                    height: 8px;
                 }
                 
                 .progress-bar {
-                    border-radius: 10px;
+                    border-radius: 8px;
                     transition: width 0.6s ease;
+                }
+
+                .form-control {
+                    border-radius: 4px;
+                }
+
+                .badge {
+                    font-weight: 500;
+                }
+
+                .table td {
+                    padding: 0.4rem;
+                }
+
+                .card-header {
+                    border-bottom: 1px solid rgba(0,0,0,0.08);
                 }
             `}</style>
         </div>
