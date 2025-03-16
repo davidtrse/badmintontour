@@ -1,3 +1,4 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -94,4 +95,52 @@ body {
 .tournament-bracket .grid {
     min-width: 1200px;
     padding: 1rem;
+}
+
+/* Custom styles */
+.max-width-1440 {
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Custom table styles */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Custom badge styles */
+.badge {
+    padding: 0.35em 0.65em;
+}
+
+/* Custom input styles */
+.form-control-sm {
+    min-height: calc(1.5em + 0.5rem + 2px);
+}
+
+/* Custom button styles */
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Custom spacing utilities */
+.gap-2 {
+    gap: 0.5rem;
+}
+
+.gap-3 {
+    gap: 1rem;
+}
+
+.gap-4 {
+    gap: 1.5rem;
 }

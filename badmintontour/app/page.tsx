@@ -5,91 +5,92 @@ import { Tournament, Match, Team } from '../types/tournament';
 import { TournamentDB } from '../services/db';
 import { createInitialTournament } from '../data/initialData';
 import { calculateGroupStandings, generateQuarterFinals, generateSemiFinals, generateFinals } from '../utils/tournament';
-import TournamentBracket from '../components/TournamentBracket';
-import { Card, Input, Button, Table, Layout, Typography, Space, Badge, Spin, Alert, InputNumber, Tag, Row, Col } from 'antd';
-import { TrophyOutlined, ReloadOutlined, RightOutlined, CheckCircleOutlined } from '@ant-design/icons';
-
-const { Header, Content } = Layout;
-const { Title, Text } = Typography;
+import { FaTrophy, FaRedo, FaArrowRight, FaCheck } from 'react-icons/fa';
 
 const db = new TournamentDB();
+
+// Định nghĩa màu sắc cho từng câu lạc bộ
+const CLUB_COLORS = {
+    'ROLEX': 'primary',
+    'TD': 'info',
+    'Panda': 'warning'
+} as const;
+
+type ClubColor = typeof CLUB_COLORS[keyof typeof CLUB_COLORS];
+
+function getClubColor(club: string): ClubColor {
+    return CLUB_COLORS[club as keyof typeof CLUB_COLORS] || 'secondary';
+}
+
+function TeamDisplay({ team, isWinner = false }: { team: Team; isWinner?: boolean }) {
+    const clubColor = getClubColor(team.club);
+
+    return (
+        <div className="d-flex align-items-center gap-2">
+            <span className={`badge bg-${clubColor} text-wrap`} style={{ minWidth: '60px' }}>{team.club}</span>
+            <span className={`fw-bold ${isWinner ? 'text-success' : ''}`}>{team.name}</span>
+        </div>
+    );
+}
 
 function MatchInput({ match, onUpdate }: { match: Match; onUpdate: (score1: number, score2: number) => void }) {
     const isTeam1Winner = match.completed && match.winner?.id === match.team1.id;
     const isTeam2Winner = match.completed && match.winner?.id === match.team2.id;
 
     return (
-        <Card
-            className="hover:shadow-lg transition-shadow duration-300"
-            size="small"
-            variant="outlined"
-            style={{ width: '100%', maxWidth: '300px' }}
-        >
-            <div className="space-y-4">
-                <div className="text-center">
-                    <Tag color="purple">{match.group ? `Bảng ${match.group}` : 'Vòng loại trực tiếp'}</Tag>
+        <div className="card shadow-sm hover:shadow-lg transition-all">
+            <div className="card-body p-3">
+                <div className="text-center mb-2">
+                    <span className="badge bg-primary">{match.group ? `Bảng ${match.group}` : 'Vòng loại trực tiếp'}</span>
                 </div>
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2 p-2 rounded bg-gray-50">
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <Badge status={isTeam1Winner ? "success" : "default"} />
-                            <div className="min-w-0 flex-1">
-                                <Space size={4}>
-                                    <Tag color="blue">{match.team1.club}</Tag>
-                                    <Text strong className="block text-base">{match.team1.name}</Text>
-                                </Space>
-                            </div>
+                <div className="mb-3">
+                    <div className={`d-flex align-items-center justify-content-between p-2 rounded ${isTeam1Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
+                        <div className="flex-grow-1">
+                            <TeamDisplay team={match.team1} isWinner={isTeam1Winner} />
                         </div>
-                        <InputNumber
-                            min={0}
-                            size="small"
-                            value={match.score1 ?? undefined}
-                            onChange={(value) => {
-                                const score1 = value || 0;
+                        <input
+                            type="number"
+                            className="form-control form-control-sm w-auto"
+                            min="0"
+                            value={match.score1 ?? ''}
+                            onChange={(e) => {
+                                const score1 = parseInt(e.target.value) || 0;
                                 const score2 = match.score2 ?? 0;
                                 onUpdate(score1, score2);
                             }}
-                            className="w-16"
+                            style={{ width: '60px' }}
                         />
                     </div>
-                    <div className="flex items-center justify-between gap-2 p-2 rounded bg-gray-50">
-                        <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <Badge status={isTeam2Winner ? "success" : "default"} />
-                            <div className="min-w-0 flex-1">
-                                <Space size={4}>
-                                    <Tag color="blue">{match.team2.club}</Tag>
-                                    <Text strong className="block text-base">{match.team2.name}</Text>
-                                </Space>
-                            </div>
+                    <div className={`d-flex align-items-center justify-content-between p-2 rounded mt-2 ${isTeam2Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
+                        <div className="flex-grow-1">
+                            <TeamDisplay team={match.team2} isWinner={isTeam2Winner} />
                         </div>
-                        <InputNumber
-                            min={0}
-                            size="small"
-                            value={match.score2 ?? undefined}
-                            onChange={(value) => {
-                                const score2 = value || 0;
+                        <input
+                            type="number"
+                            className="form-control form-control-sm w-auto"
+                            min="0"
+                            value={match.score2 ?? ''}
+                            onChange={(e) => {
+                                const score2 = parseInt(e.target.value) || 0;
                                 const score1 = match.score1 ?? 0;
                                 onUpdate(score1, score2);
                             }}
-                            className="w-16"
+                            style={{ width: '60px' }}
                         />
                     </div>
                 </div>
                 {match.completed && (
-                    <div className="pt-2 border-t text-center">
-                        <Space>
-                            <CheckCircleOutlined style={{ color: '#52c41a' }} />
-                            <Text type="success">
-                                Người thắng: <Space size={4}>
-                                    <Tag color="green">{match.winner?.club}</Tag>
-                                    <Text strong>{match.winner?.name}</Text>
-                                </Space>
-                            </Text>
-                        </Space>
+                    <div className="text-center border-top pt-2">
+                        <div className="d-flex align-items-center justify-content-center gap-2">
+                            <FaCheck className="text-success" />
+                            <span className="text-success">
+                                Người thắng: <TeamDisplay team={match.winner!} isWinner={true} />
+                            </span>
+                        </div>
                     </div>
                 )}
             </div>
-        </Card>
+        </div>
     );
 }
 
@@ -121,12 +122,22 @@ export default function TournamentPage() {
 
     async function resetTournament() {
         try {
+            setLoading(true);
+            // Reset tournament in database
             await db.resetTournament();
+            // Create new initial tournament
             const initial = createInitialTournament();
+            // Save new tournament
             await db.saveTournament(initial);
+            // Update state
             setTournament(initial);
+            // Show success message using alert
+            window.alert('Giải đấu đã được khởi tạo lại thành công!');
         } catch (error) {
             console.error('Error resetting tournament:', error);
+            window.alert('Có lỗi xảy ra khi khởi tạo lại giải đấu!');
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -189,228 +200,210 @@ export default function TournamentPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Spin size="large" />
+            <div className="d-flex align-items-center justify-content-center min-vh-100">
+                <div className="spinner-border text-primary" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </div>
             </div>
         );
     }
 
     if (!tournament) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
-                <Alert
-                    message="Error"
-                    description="Error loading tournament"
-                    type="error"
-                    showIcon
-                />
+            <div className="d-flex align-items-center justify-content-center min-vh-100">
+                <div className="alert alert-danger" role="alert">
+                    Error loading tournament
+                </div>
             </div>
         );
     }
 
-    const columns = [
-        {
-            title: 'Đội',
-            dataIndex: 'team',
-            key: 'team',
-            render: (team: Team, record: any, index: number) => (
-                <Space>
-                    {index < 2 && <Badge status="success" />}
-                    <Space size={4}>
-                        <Tag color="blue">{team.club}</Tag>
-                        <Text strong>{team.name}</Text>
-                    </Space>
-                </Space>
-            ),
-        },
-        {
-            title: 'Điểm',
-            dataIndex: 'points',
-            key: 'points',
-            align: 'center' as const,
-            render: (points: number) => <Text strong>{points}</Text>,
-        },
-        {
-            title: 'Thắng',
-            dataIndex: 'matchesWon',
-            key: 'matchesWon',
-            align: 'center' as const,
-            render: (won: number) => <Text type="success">{won}</Text>,
-        },
-        {
-            title: 'Thua',
-            dataIndex: 'matchesLost',
-            key: 'matchesLost',
-            align: 'center' as const,
-            render: (lost: number) => <Text type="danger">{lost}</Text>,
-        },
-        {
-            title: 'Hiệu số',
-            dataIndex: 'scoreDifference',
-            key: 'scoreDifference',
-            align: 'center' as const,
-        },
-    ];
-
     return (
-        <Layout className="min-h-screen">
-            <Header className="bg-white shadow-sm">
-                <div className="container mx-auto px-4 flex justify-between items-center h-full">
-                    <div className="flex items-center">
-                        <Title level={3} style={{ margin: 0 }}>ROLEX CHAMPION</Title>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Button
-                            type="text"
-                            danger
-                            icon={<ReloadOutlined />}
-                            onClick={resetTournament}
-                        >
-                            reset
-                        </Button>
-                        <Button
-                            type="text"
+        <div className="min-vh-100 bg-light">
+            {/* Header */}
+            <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+                <div className="container-fluid max-width-1440">
+                    <span className="navbar-brand fw-bold">
+                        <FaTrophy className="me-2" />
+                        ROLEX CHAMPION
+                    </span>
+                    <div className="d-flex gap-2">
+                        <button className="btn btn-outline-danger btn-sm" onClick={resetTournament}>
+                            <FaRedo className="me-1" /> Reset
+                        </button>
+                        <button
+                            className="btn btn-outline-primary btn-sm"
                             onClick={() => {
                                 const testMatch = tournament.groups[0].matches[0];
                                 updateMatch(testMatch, 21, 19);
                             }}
                         >
-                            auto test
-                        </Button>
+                            Auto Test
+                        </button>
                     </div>
                 </div>
-            </Header>
+            </nav>
 
-            <Content className="container mx-auto p-4">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            {/* Main Content */}
+            <div className="container-fluid max-width-1440 py-4">
+                <div className="row g-4">
                     {/* Group Stage */}
-                    <div className="lg:col-span-2">
-                        <Title level={4}>Vòng Bảng</Title>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {tournament.groups.map(group => (
-                                <Card
-                                    key={group.id}
-                                    title={group.name}
-                                    className="hover:shadow-lg transition-shadow duration-300"
-                                    size="small"
-                                >
-                                    <Space direction="vertical" className="w-full" size="small">
-                                        <Table
-                                            columns={columns}
-                                            dataSource={calculateGroupStandings(group).map(s => ({
-                                                ...s,
-                                                key: s.team.id,
-                                                team: s.team,
-                                            }))}
-                                            pagination={false}
-                                            size="small"
-                                        />
+                    <div className="col-12 col-xxl-7">
+                        <div className="card shadow-sm">
+                            <div className="card-header bg-white">
+                                <h5 className="mb-0">Vòng Bảng</h5>
+                            </div>
+                            <div className="card-body">
+                                <div className="row g-4">
+                                    {tournament.groups.map(group => (
+                                        <div key={group.id} className="col-12 col-xl-6">
+                                            <div className="card h-100">
+                                                <div className="card-header bg-white">
+                                                    <h6 className="mb-0">{group.name}</h6>
+                                                </div>
+                                                <div className="card-body">
+                                                    <div className="table-responsive mb-4">
+                                                        <table className="table table-sm table-hover">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Đội</th>
+                                                                    <th className="text-center">Điểm</th>
+                                                                    <th className="text-center">Thắng</th>
+                                                                    <th className="text-center">Thua</th>
+                                                                    <th className="text-center">Hiệu số</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {calculateGroupStandings(group).map((standing, index) => {
+                                                                    const allMatchesCompleted = group.matches.every(m => m.completed);
+                                                                    const isQualified = allMatchesCompleted && index < 2;
 
-                                        <Title level={5}>Trận đấu</Title>
-                                        <Row gutter={16}>
-                                            {group.matches.map(match => (
-                                                <Col key={match.id} span={8}>
+                                                                    return (
+                                                                        <tr key={standing.team.id}>
+                                                                            <td>
+                                                                                <div className="d-flex align-items-center gap-2">
+                                                                                    {isQualified && (
+                                                                                        <div className="bg-success rounded-circle" style={{ width: '8px', height: '8px' }}></div>
+                                                                                    )}
+                                                                                    <TeamDisplay team={standing.team} />
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="text-center fw-bold">{standing.points}</td>
+                                                                            <td className="text-center text-success">{standing.matchesWon}</td>
+                                                                            <td className="text-center text-danger">{standing.matchesLost}</td>
+                                                                            <td className="text-center">{standing.scoreDifference}</td>
+                                                                        </tr>
+                                                                    );
+                                                                })}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                    <h6 className="mb-3">Trận đấu</h6>
+                                                    <div className="row g-3">
+                                                        {group.matches.map(match => (
+                                                            <div key={match.id} className="col-12">
+                                                                <MatchInput
+                                                                    match={match}
+                                                                    onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Knockout Stages */}
+                    <div className="col-12 col-xxl-5">
+                        <div className="row g-4">
+                            {/* Quarter Finals */}
+                            <div className="col-12">
+                                <div className="card shadow-sm">
+                                    <div className="card-header bg-white d-flex justify-content-between align-items-center">
+                                        <h5 className="mb-0">Tứ kết</h5>
+                                        <button
+                                            className="btn btn-primary btn-sm"
+                                            onClick={generateQuarterFinalsHandler}
+                                            disabled={tournament.quarterFinals.length > 0}
+                                        >
+                                            <FaArrowRight className="me-1" /> Tạo trận
+                                        </button>
+                                    </div>
+                                    <div className="card-body">
+                                        <div className="row g-3">
+                                            {tournament.quarterFinals.map(match => (
+                                                <div key={match.id} className="col-12 col-md-6">
                                                     <MatchInput
                                                         match={match}
                                                         onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
                                                     />
-                                                </Col>
+                                                </div>
                                             ))}
-                                        </Row>
-                                    </Space>
-                                </Card>
-                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Semi Finals */}
+                            <div className="col-12">
+                                <div className="card shadow-sm">
+                                    <div className="card-header bg-white">
+                                        <h5 className="mb-0">Bán kết</h5>
+                                    </div>
+                                    <div className="card-body">
+                                        <div className="row g-3">
+                                            {tournament.semiFinals.map(match => (
+                                                <div key={match.id} className="col-12 col-md-6">
+                                                    <MatchInput
+                                                        match={match}
+                                                        onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Finals */}
+                            <div className="col-12">
+                                <div className="card shadow-sm">
+                                    <div className="card-header bg-white">
+                                        <h5 className="mb-0">Chung kết</h5>
+                                    </div>
+                                    <div className="card-body">
+                                        <div className="row g-3">
+                                            {tournament.final && (
+                                                <div className="col-12 col-md-6">
+                                                    <h6 className="mb-3">Trận chung kết</h6>
+                                                    <MatchInput
+                                                        match={tournament.final}
+                                                        onUpdate={(score1, score2) => updateMatch(tournament.final!, score1, score2)}
+                                                    />
+                                                </div>
+                                            )}
+                                            {tournament.thirdPlace && (
+                                                <div className="col-12 col-md-6">
+                                                    <h6 className="mb-3">Tranh hạng 3</h6>
+                                                    <MatchInput
+                                                        match={tournament.thirdPlace}
+                                                        onUpdate={(score1, score2) => updateMatch(tournament.thirdPlace!, score1, score2)}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    {/* Quarter Finals */}
-                    <div>
-                        <Card
-                            title={
-                                <div className="flex justify-between items-center">
-                                    <Title level={4} style={{ margin: 0 }}>Tứ kết</Title>
-                                    <Button
-                                        type="primary"
-                                        size="small"
-                                        icon={<RightOutlined />}
-                                        onClick={generateQuarterFinalsHandler}
-                                        disabled={tournament.quarterFinals.length > 0}
-                                    >
-                                        Tạo trận
-                                    </Button>
-                                </div>
-                            }
-                            className="hover:shadow-lg transition-shadow duration-300"
-                            size="small"
-                        >
-                            <div className="space-y-4">
-                                {[0, 2].map(startIdx => (
-                                    <Row key={startIdx} gutter={16}>
-                                        {tournament.quarterFinals.slice(startIdx, startIdx + 2).map(match => (
-                                            <Col key={match.id} span={12}>
-                                                <MatchInput
-                                                    match={match}
-                                                    onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
-                                                />
-                                            </Col>
-                                        ))}
-                                    </Row>
-                                ))}
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Semi Finals */}
-                    <div>
-                        <Card
-                            title={<Title level={4}>Bán kết</Title>}
-                            className="hover:shadow-lg transition-shadow duration-300"
-                            size="small"
-                        >
-                            <Row gutter={16}>
-                                {tournament.semiFinals.map(match => (
-                                    <Col key={match.id} span={12}>
-                                        <MatchInput
-                                            match={match}
-                                            onUpdate={(score1, score2) => updateMatch(match, score1, score2)}
-                                        />
-                                    </Col>
-                                ))}
-                            </Row>
-                        </Card>
-                    </div>
-
-                    {/* Finals */}
-                    <div>
-                        <Card
-                            title={<Title level={4}>Chung kết</Title>}
-                            className="hover:shadow-lg transition-shadow duration-300"
-                            size="small"
-                        >
-                            <Row gutter={16}>
-                                {tournament.final && (
-                                    <Col span={12}>
-                                        <Title level={5}>Trận chung kết</Title>
-                                        <MatchInput
-                                            match={tournament.final}
-                                            onUpdate={(score1, score2) => updateMatch(tournament.final!, score1, score2)}
-                                        />
-                                    </Col>
-                                )}
-                                {tournament.thirdPlace && (
-                                    <Col span={12}>
-                                        <Title level={5}>Tranh hạng 3</Title>
-                                        <MatchInput
-                                            match={tournament.thirdPlace}
-                                            onUpdate={(score1, score2) => updateMatch(tournament.thirdPlace!, score1, score2)}
-                                        />
-                                    </Col>
-                                )}
-                            </Row>
-                        </Card>
-                    </div>
                 </div>
-            </Content>
-        </Layout>
+            </div>
+        </div>
     );
 } 
