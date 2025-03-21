@@ -1,26 +1,30 @@
 import { Team, Group, Tournament, Match } from '../types/tournament';
 
-export const initialTeams: { [key: string]: Team[] } = {
+export const initialTeams = {
     'A': [
-        { id: 'A1', name: 'Minh-P.Hiếu', club: 'ROLEX', players: ['Minh', 'P.Hiếu'] },
-        { id: 'A2', name: 'Đạt-Tú', club: 'ROLEX', players: ['Đạt', 'Tú'] },
-        { id: 'A3', name: 'Hoàng-Hiếu', club: 'TD', players: ['Hoàng', 'Hiếu'] },
+        { id: 'A1', name: 'Hoàng-Thủy', club: 'TD', players: ['Hoàng', 'Thủy'] },
+        { id: 'A2', name: 'Tùng-Vân', club: 'TD', players: ['Tùng', 'Vân'] },
+        { id: 'A3', name: 'Thành-chị Bình', club: 'ROLEX', players: ['Thành', 'chị Bình'] },
+        { id: 'A4', name: 'Ngọc Hiếu-Thanh', club: 'ACE', players: ['Ngọc Hiếu', 'Thanh'] }
     ],
     'B': [
-        { id: 'B1', name: 'Hoàng Anh-Thành', club: 'ROLEX', players: ['Hoàng Anh', 'Thành'] },
-        { id: 'B2', name: 'Bella-Hiệp', club: 'ROLEX', players: ['Bella', 'Hiệp'] },
-        { id: 'B3', name: 'Tùng-Tiến', club: 'TD', players: ['Tùng', 'Tiến'] },
+        { id: 'B1', name: 'a. Thắng-Linh Đan', club: 'ROLEX', players: ['a. Thắng', 'Linh Đan'] },
+        { id: 'B2', name: 'Tiến-Hải', club: 'TD', players: ['Tiến', 'Hải'] },
+        { id: 'B3', name: 'a Hồng-bạn a Hồng', club: 'ROLEX', players: ['a Hồng', 'bạn a Hồng'] },
+        { id: 'B4', name: 'Thương (Ty)-Linh', club: 'ROLEX', players: ['Thương (Ty)', 'Linh'] }
     ],
     'C': [
-        { id: 'C1', name: 'Hồng-Đạt', club: 'ROLEX', players: ['Hồng', 'Đạt'] },
-        { id: 'C2', name: 'Ngọc Hiếu-Quang', club: 'ROLEX', players: ['Ngọc Hiếu', 'Quang'] },
-        { id: 'C3', name: 'Cung-Tuyên', club: 'Panda', players: ['Cung', 'Tuyên'] },
+        { id: 'C1', name: 'Minh-Lan', club: 'ROLEX', players: ['Minh', 'Lan'] },
+        { id: 'C2', name: 'a Hoàng Anh-Tuyết', club: 'ROLEX', players: ['a Hoàng Anh', 'Tuyết'] },
+        { id: 'C3', name: 'Quang-Bảo Trân', club: 'ROLEX', players: ['Quang', 'Bảo Trân'] },
+        { id: 'C4', name: 'Khánh - Hiếu Lê', club: 'ROLEX', players: ['Khánh', 'Hiếu Lê'] }
     ],
     'D': [
-        { id: 'D1', name: 'Thương-Sơn', club: 'ROLEX', players: ['Thương', 'Sơn'] },
-        { id: 'D2', name: 'Cường-Ninh', club: 'ROLEX', players: ['Cường', 'Ninh'] },
-        { id: 'D3', name: 'Vũ-Thịnh', club: 'Panda', players: ['Vũ', 'Thịnh'] },
-    ],
+        { id: 'D1', name: 'Hiếu-Trúc', club: 'TD', players: ['Hiếu', 'Trúc'] },
+        { id: 'D2', name: 'Hiệp-chị Hòa', club: 'ROLEX', players: ['Hiệp', 'chị Hòa'] },
+        { id: 'D3', name: 'Hoàng Hiếu-Diễm', club: 'ROLEX', players: ['Hoàng Hiếu', 'Diễm'] },
+        { id: 'D4', name: 'Tuyên-Ngân', club: 'PANDA', players: ['Tuyên', 'Ngân'] }
+    ]
 };
 
 export function generateGroupMatches(teams: Team[], groupId: string): Match[] {
