@@ -8,6 +8,7 @@ import { calculateGroupStandings, generateQuarterFinals, generateSemiFinals, gen
 import { FaTrophy, FaRedo, FaArrowRight, FaCheck, FaMedal } from 'react-icons/fa';
 import { TeamDisplay } from '../components/TeamDisplay';
 import ScoreInputModal from '../components/ScoreInputModal';
+import { Button } from 'antd';
 
 const db = new TournamentDB();
 
@@ -531,18 +532,33 @@ export default function TournamentPage() {
                         <div className="row g-3">
                             {/* Quarter Finals */}
                             <div className="col-12">
-                                <div className="card knockout-stage">
+                                <div className="card shadow-sm">
                                     <div className="card-header bg-white py-3">
                                         <div className="d-flex justify-content-between align-items-center">
                                             <div className="d-flex align-items-center">
-                                                <FaArrowRight className="text-primary me-2" />
+                                                <FaArrowRight className="text-warning me-2" />
                                                 <h5 className="mb-0">Tứ kết</h5>
                                             </div>
-                                            {tournament?.quarterFinals.length > 0 && (
-                                                <span className="badge bg-primary">
-                                                    {tournament.quarterFinals.filter(m => m.completed).length}/4 trận
-                                                </span>
-                                            )}
+                                            <div className="d-flex align-items-center gap-2">
+                                                {tournament?.quarterFinals.length > 0 && (
+                                                    <span className="badge bg-warning">
+                                                        {tournament.quarterFinals.filter(m => m.completed).length}/4 trận
+                                                    </span>
+                                                )}
+                                                <Button 
+                                                    type="primary" 
+                                                    icon={<FaRedo />} 
+                                                    onClick={() => {
+                                                        if (!tournament) return;
+                                                        const updatedTournament = { ...tournament };
+                                                        updatedTournament.quarterFinals = generateQuarterFinals(updatedTournament);
+                                                        db.saveTournament(updatedTournament);
+                                                        setTournament(updatedTournament);
+                                                    }}
+                                                >
+                                                    Tạo lại
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="card-body">
