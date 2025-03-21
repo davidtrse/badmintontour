@@ -6,108 +6,66 @@ import { TournamentDB } from '../services/db';
 import { createInitialTournament } from '../data/initialData';
 import { calculateGroupStandings, generateQuarterFinals, generateSemiFinals, generateFinals } from '../utils/tournament';
 import { FaTrophy, FaRedo, FaArrowRight, FaCheck, FaMedal } from 'react-icons/fa';
+import { TeamDisplay } from '../components/TeamDisplay';
+import ScoreInputModal from '../components/ScoreInputModal';
 
 const db = new TournamentDB();
 
-// Định nghĩa màu sắc cho từng câu lạc bộ
-const CLUB_COLORS = {
-    'ROLEX': 'primary',
-    'TD': 'info',
-    'Panda': 'warning'
-} as const;
-
-type ClubColor = typeof CLUB_COLORS[keyof typeof CLUB_COLORS];
-
-function getClubColor(club: string): ClubColor {
-    return CLUB_COLORS[club as keyof typeof CLUB_COLORS] || 'secondary';
-}
-
-function TeamDisplay({ team, isWinner = false, compact = false }: { team: Team; isWinner?: boolean; compact?: boolean }) {
-    const clubColor = getClubColor(team.club);
-
-    return (
-        <div className="d-flex align-items-center gap-1">
-            <span className={`badge bg-${clubColor} text-nowrap ${compact ? 'badge-sm' : ''}`}
-                style={{
-                    minWidth: compact ? '35px' : '40px',
-                    fontSize: compact ? '0.7rem' : '0.75rem',
-                    padding: compact ? '0.2rem 0.4rem' : '0.25rem 0.5rem'
-                }}>
-                {team.club}
-            </span>
-            <span className={`${isWinner ? 'text-success' : ''} text-truncate`}
-                style={{
-                    fontSize: compact ? '0.8rem' : '0.85rem',
-                    fontWeight: 500
-                }}>
-                {team.name}
-            </span>
-        </div>
-    );
-}
-
 function MatchInput({ match, onUpdate }: { match: Match; onUpdate: (score1: number, score2: number) => void }) {
+    const [isModalVisible, setIsModalVisible] = useState(false);
     const isTeam1Winner = match.completed && match.winner?.id === match.team1.id;
     const isTeam2Winner = match.completed && match.winner?.id === match.team2.id;
 
     return (
-        <div className="card shadow-sm hover:shadow-lg transition-all" style={{ fontSize: '0.85rem' }}>
-            <div className="card-body p-2">
-                <div className="text-center mb-2">
-                    <span className="badge bg-primary" style={{ fontSize: '0.75rem' }}>
-                        {match.group ? `Bảng ${match.group}` : 'Vòng loại trực tiếp'}
-                    </span>
+        <>
+            <div 
+                className="card shadow-sm hover:shadow-lg transition-all cursor-pointer" 
+                style={{ fontSize: '0.85rem' }}
+                onClick={() => setIsModalVisible(true)}
+            >
+                <div className="card-body p-2">
+                    <div className="text-center mb-2">
+                        <span className="badge bg-primary" style={{ fontSize: '0.75rem' }}>
+                            {match.group ? `Bảng ${match.group}` : 'Vòng loại trực tiếp'}
+                        </span>
+                    </div>
+                    <div className="mb-2">
+                        <div className={`d-flex align-items-center justify-content-between p-1 rounded ${isTeam1Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
+                            <div className="flex-grow-1 me-3">
+                                <TeamDisplay team={match.team1} isWinner={isTeam1Winner} compact={true} />
+                            </div>
+                            <div className="score-display">
+                                {match.score1 !== undefined ? match.score1 : '-'}
+                            </div>
+                        </div>
+                        <div className={`d-flex align-items-center justify-content-between p-1 rounded ${isTeam2Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
+                            <div className="flex-grow-1 me-3">
+                                <TeamDisplay team={match.team2} isWinner={isTeam2Winner} compact={true} />
+                            </div>
+                            <div className="score-display">
+                                {match.score2 !== undefined ? match.score2 : '-'}
+                            </div>
+                        </div>
+                    </div>
+                    {match.completed && (
+                        <div className="text-center border-top pt-1">
+                            <div className="d-flex align-items-center justify-content-center gap-1" style={{ fontSize: '0.8rem' }}>
+                                <FaCheck className="text-success" style={{ fontSize: '0.7rem' }} />
+                                <span className="text-success">
+                                    Thắng: <TeamDisplay team={match.winner!} isWinner={true} compact={true} />
+                                </span>
+                            </div>
+                        </div>
+                    )}
                 </div>
-                <div className="mb-2">
-                    <div className={`d-flex align-items-center justify-content-between p-1 rounded ${isTeam1Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
-                        <div className="flex-grow-1 me-3">
-                            <TeamDisplay team={match.team1} isWinner={isTeam1Winner} compact={true} />
-                        </div>
-                        <div className="score-input-wrapper">
-                            <input
-                                type="number"
-                                className="form-control form-control-sm score-input"
-                                min="0"
-                                value={match.score1 ?? ''}
-                                onChange={(e) => {
-                                    const score1 = parseInt(e.target.value) || 0;
-                                    const score2 = match.score2 ?? 0;
-                                    onUpdate(score1, score2);
-                                }}
-                            />
-                        </div>
-                    </div>
-                    <div className={`d-flex align-items-center justify-content-between p-1 rounded mt-1 ${isTeam2Winner ? 'bg-success bg-opacity-10' : 'bg-light'}`}>
-                        <div className="flex-grow-1 me-3">
-                            <TeamDisplay team={match.team2} isWinner={isTeam2Winner} compact={true} />
-                        </div>
-                        <div className="score-input-wrapper">
-                            <input
-                                type="number"
-                                className="form-control form-control-sm score-input"
-                                min="0"
-                                value={match.score2 ?? ''}
-                                onChange={(e) => {
-                                    const score2 = parseInt(e.target.value) || 0;
-                                    const score1 = match.score1 ?? 0;
-                                    onUpdate(score1, score2);
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-                {match.completed && (
-                    <div className="text-center border-top pt-1">
-                        <div className="d-flex align-items-center justify-content-center gap-1" style={{ fontSize: '0.8rem' }}>
-                            <FaCheck className="text-success" style={{ fontSize: '0.7rem' }} />
-                            <span className="text-success">
-                                Thắng: <TeamDisplay team={match.winner!} isWinner={true} compact={true} />
-                            </span>
-                        </div>
-                    </div>
-                )}
             </div>
-        </div>
+            <ScoreInputModal
+                match={match}
+                visible={isModalVisible}
+                onCancel={() => setIsModalVisible(false)}
+                onOk={onUpdate}
+            />
+        </>
     );
 }
 
@@ -835,9 +793,9 @@ export default function TournamentPage() {
                 }
                 
                 .score-input {
-                    width: 60px !important;
+                    width: 100px !important;
                     text-align: center;
-                    padding: 0.25rem !important;
+                    // padding: 0.rem !important;
                     font-weight: 500;
                 }
 
@@ -935,6 +893,62 @@ export default function TournamentPage() {
                     .bracket-round {
                         min-width: 280px;
                     }
+                }
+
+                /* Team Display styles */
+                .team-display {
+                    font-size: 0.85rem;
+                }
+
+                .team-display.compact {
+                    font-size: 0.8rem;
+                }
+
+                .team-display.compact .team-club {
+                    font-size: 0.75rem;
+                }
+
+                .team-name {
+                    font-weight: 500;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+
+                .team-club {
+                    font-size: 0.75rem;
+                    opacity: 0.7;
+                }
+
+                /* Score Display styles */
+                .score-display {
+                    min-width: 30px;
+                    text-align: center;
+                    font-weight: 500;
+                    font-size: 0.9rem;
+                }
+
+                /* Modal styles */
+                .ant-modal-content {
+                    border-radius: 8px;
+                }
+
+                .ant-modal-header {
+                    border-bottom: 1px solid rgba(0,0,0,0.08);
+                    padding: 1rem;
+                }
+
+                .ant-modal-body {
+                    padding: 1.5rem;
+                }
+
+                .ant-modal-footer {
+                    border-top: 1px solid rgba(0,0,0,0.08);
+                    padding: 1rem;
+                }
+
+                .ant-input-number {
+                    width: 100%;
                 }
             `}</style>
         </div>

@@ -28,11 +28,11 @@ export function calculateGroupStandings(group: Group): GroupStanding[] {
         if (match.winner?.id === match.team1.id) {
             team1Standing.matchesWon++;
             team2Standing.matchesLost++;
-            team1Standing.points += 2;
+            team1Standing.points += 1;
         } else if (match.winner?.id === match.team2.id) {
             team2Standing.matchesWon++;
             team1Standing.matchesLost++;
-            team2Standing.points += 2;
+            team2Standing.points += 1;
         }
 
         if (match.score1 !== undefined && match.score2 !== undefined) {
